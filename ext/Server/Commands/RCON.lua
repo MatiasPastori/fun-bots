@@ -4,10 +4,6 @@ RCONCommands = class('RCONCommands')
 
 require('__shared/Config')
 
----@type BotManager
-local m_BotManager = require('BotManager')
----@type BotSpawner
-local m_BotSpawner = require('BotSpawner')
 ---@type SettingsManager
 local m_SettingsManager = require('SettingsManager')
 
@@ -87,77 +83,6 @@ function RCONCommands:__init()
 			end)
 		},
 
-		-- Kick All.
-		KICKALLL = {
-			Name = 'funbots.kickAll',
-			Callback = (function(p_Command, p_Args)
-				Globals.SpawnMode = "manual"
-				m_BotManager:DestroyAll()
-
-				return { 'OK' }
-			end)
-		},
-
-		-- Kick Bot.
-		KICKBOT = {
-			Name = 'funbots.kickBot',
-			Parameters = { 'Name' },
-			Callback = (function(p_Command, p_Args)
-				local s_Name = p_Args[1]
-
-				if s_Name == nil then
-					return { 'ERROR', 'Name needed.' }
-				end
-
-				m_BotManager:DestroyBot(s_Name)
-
-				return { 'OK' }
-			end)
-		},
-
-		-- Kill All.
-		KILLALL = {
-			Name = 'funbots.killAll',
-			Callback = (function(p_Command, p_Args)
-				Globals.SpawnMode = "manual"
-				m_BotManager:KillAll()
-
-				return { 'OK' }
-			end)
-		},
-
-		-- Spawn <Amount> <Team>
-		SPAWN = {
-			Name = 'funbots.spawn',
-			Parameters = { 'Amount', 'Team' },
-			Callback = (function(p_Command, p_Args)
-				local s_Value = p_Args[1]
-				local s_Team = p_Args[2]
-
-				if s_Value == nil then
-					return { 'ERROR', 'Needing Spawn amount.' }
-				end
-
-				if s_Team == nil then
-					return { 'ERROR', 'Needing Team.' }
-				end
-
-				if tonumber(s_Value) == nil then
-					return { 'ERROR', 'Needing Spawn amount.' }
-				end
-
-				local s_Amount = tonumber(s_Value)
-
-				if TeamId[s_Team] == nil then
-					return { 'ERROR', 'Unknown Team: TeamId.' .. s_Team }
-				end
-
-				m_BotSpawner:SpawnWayBots(nil, s_Amount, true, nil, nil, TeamId[s_Team])
-
-				return { 'OK' }
-			end)
-		},
-
 		-- Permissions <Player> <PermissionName>
 		PERMISSIONS = {
 			Name = 'funbots.Permissions',
@@ -183,7 +108,7 @@ function RCONCommands:__init()
 						else
 							return { 'ERROR', 'Can\'r revoke all Permissions from "' .. s_Name .. '".' }
 						end
-					-- Revoke SPECIFIC Permission.
+						-- Revoke SPECIFIC Permission.
 					elseif s_Permission:sub(1, 1) == '!' then
 						s_Permission = s_Permission:sub(2)
 

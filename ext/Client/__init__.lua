@@ -21,21 +21,19 @@ require('__shared/Settings/UpdateFlag')
 require('__shared/Settings/BotEnums')
 require('__shared/Settings/Range')
 require('__shared/Settings/SettingsDefinition')
-require('__shared/WeaponList')
-require('__shared/EbxEditUtils')
 require('__shared/Utils/Logger')
 
 ---@type Logger
 local m_Logger = Logger("FunBotClient", Debug.Client.INFO)
 
----@type ClientBotManager
-local m_ClientBotManager = require('ClientBotManager')
 ---@type ClientNodeEditor
 local m_ClientNodeEditor = require('ClientNodeEditor')
 ---@type ClientSpawnPointHelper
 local m_ClientSpawnPointHelper = require('ClientSpawnPointHelper')
 ---@type ConsoleCommands
 local m_ConsoleCommands = require('ConsoleCommands')
+---@type ClientSettings
+local m_ClientSettings = require('ClientSettings')
 ---@type Language
 local m_Language = require('__shared/Language')
 ---@type FunBotUIClient
@@ -70,7 +68,6 @@ function FunBotClient:RegisterEvents()
 	Events:Subscribe('Partition:Loaded', self, self.OnPartitionLoaded)
 
 	NetEvents:Subscribe('WriteClientSettings', self, self.OnWriteClientSettings)
-	NetEvents:Subscribe('CheckBotBotAttack', self, self.CheckForBotBotAttack)
 	NetEvents:Subscribe('UI_Settings', self, self.OnUISettings)
 
 	NetEvents:Subscribe('ConsoleCommands:RegisterCommands', self, self.OnRegisterConsoleCommands)
@@ -80,7 +77,6 @@ end
 
 function FunBotClient:RegisterHooks()
 	Hooks:Install('UI:PushScreen', 1, self, self.OnUIPushScreen)
-	Hooks:Install('Input:PreUpdate', 100, self, self.OnInputPreUpdate)
 end
 
 -- =============================================
@@ -90,7 +86,7 @@ end
 ---VEXT Shared Engine:Message Event
 ---@param p_Message Message
 function FunBotClient:OnEngineMessage(p_Message)
-	m_ClientBotManager:OnEngineMessage(p_Message)
+	m_ClientSettings:OnEngineMessage(p_Message)
 end
 
 ---VEXT Client Player:Respawn Event
@@ -110,19 +106,16 @@ end
 ---@param p_DeltaTime number
 ---@param p_UpdatePass UpdatePass|integer
 function FunBotClient:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
-	m_ClientBotManager:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 	m_ClientNodeEditor:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 end
 
 ---VEXT Shared Extension:Unloading Event
 function FunBotClient:OnExtensionUnloading()
-	m_ClientBotManager:OnExtensionUnloading()
 	m_FunBotUIClient:OnExtensionUnloading()
 end
 
 ---VEXT Shared Level:Destroy Event
 function FunBotClient:OnLevelDestroy()
-	m_ClientBotManager:OnLevelDestroy()
 	m_ClientNodeEditor:OnLevelDestroy()
 	m_ClientSpawnPointHelper:OnLevelDestroy()
 end
@@ -137,7 +130,6 @@ end
 ---@param p_DeltaTime number
 function FunBotClient:OnClientUpdateInput(p_DeltaTime)
 	m_ClientNodeEditor:OnClientUpdateInput(p_DeltaTime)
-	m_ClientBotManager:OnClientUpdateInput(p_DeltaTime)
 	m_ClientSpawnPointHelper:OnClientUpdateInput(p_DeltaTime)
 	m_FunBotUIClient:OnClientUpdateInput(p_DeltaTime)
 end
@@ -165,18 +157,14 @@ end
 -- NetEvents
 -- =============================================
 
-function FunBotClient:OnWriteClientSettings(p_NewConfig, p_UpdateWeaponSets)
-	m_ClientBotManager:OnWriteClientSettings(p_NewConfig, p_UpdateWeaponSets)
+function FunBotClient:OnWriteClientSettings(p_NewConfig)
+	m_ClientSettings:OnWriteClientSettings(p_NewConfig)
 
 	if not self._SettingsValid then
 		self._SettingsValid = true
 		m_Language:loadLanguage(Config.Language)
 		m_FunBotUIClient:OnExtensionLoaded()
 	end
-end
-
-function FunBotClient:CheckForBotBotAttack(p_RaycastData)
-	m_ClientBotManager:CheckForBotBotAttack(p_RaycastData)
 end
 
 function FunBotClient:OnUISettings(p_Data)
@@ -199,13 +187,6 @@ end
 -- Hooks
 -- =============================================
 
----VEXT Client Input:PreUpdate Hook
----@param p_HookCtx HookContext
----@param p_Cache ConceptCache
----@param p_DeltaTime number
-function FunBotClient:OnInputPreUpdate(p_HookCtx, p_Cache, p_DeltaTime)
-	m_ClientBotManager:OnInputPreUpdate(p_HookCtx, p_Cache, p_DeltaTime)
-end
 
 ---VEXT Client UI:PushScreen Hook
 ---@param p_HookCtx HookContext

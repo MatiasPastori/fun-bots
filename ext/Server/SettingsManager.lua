@@ -6,12 +6,6 @@ require('__shared/Config')
 
 ---@type Database
 local m_Database = require('Database')
----@type BotManager
-local m_BotManager = require('BotManager')
----@type BotSpawner
-local m_BotSpawner = require('BotSpawner')
----@type WeaponList
-local m_WeaponList = require('__shared/WeaponList')
 
 function SettingsManager:__init()
 	-- Create Config-Trace.
@@ -67,13 +61,13 @@ function SettingsManager:OnExtensionLoaded()
 				Time = m_Database:Now()
 			})
 
-		-- m_Database:Insert('FB_Settings', {
-		-- Key = l_Name,
-		-- Value = DatabaseField.NULL,
-		-- Time = DatabaseField.NULL
-		-- })
+			-- m_Database:Insert('FB_Settings', {
+			-- Key = l_Name,
+			-- Value = DatabaseField.NULL,
+			-- Time = DatabaseField.NULL
+			-- })
 
-		-- If it exists update Settings, if newer.
+			-- If it exists update Settings, if newer.
 		else
 			local s_Old = s_Single.Value
 
@@ -134,7 +128,7 @@ function SettingsManager:OnExtensionLoaded()
 
 			if s_TempValue then -- Number?
 				Config[l_Value.Key] = s_TempValue
-			else -- String.
+			else       -- String.
 				if l_Value.Value == 'true' then
 					Config[l_Value.Key] = true
 				elseif l_Value.Value == 'false' then
@@ -177,7 +171,7 @@ function SettingsManager:Update(p_Name, p_Value, p_Temporary, p_Batch)
 				}, 'Key')
 			end
 
-		-- Use new queries.
+			-- Use new queries.
 		else
 			m_Database:BatchQuery('FB_Settings', {
 				Key = p_Name,
@@ -281,19 +275,7 @@ function SettingsManager:UpdateSetting(p_Name, p_Value)
 	if s_Valid then
 		self:Update(p_Name, s_ConvertedValue, true, false)
 
-		if s_UpdateFlag == UpdateFlag.WeaponSets then
-			m_WeaponList:UpdateWeaponList()
-			s_UpdateClientWeapons = true
-		elseif s_UpdateFlag == UpdateFlag.YawPerSec then
-			Globals.YawPerFrame = m_BotManager:CalcYawPerFrame()
-		elseif s_UpdateFlag == UpdateFlag.AmountAndTeam then
-			Globals.SpawnMode = Config.SpawnMode
-			m_BotSpawner:UpdateBotAmountAndTeam()
-		elseif s_UpdateFlag == UpdateFlag.Skil then
-			m_BotManager:ResetSkills()
-		end
-
-		NetEvents:BroadcastLocal('WriteClientSettings', Config, s_UpdateClientWeapons)
+		NetEvents:BroadcastLocal('WriteClientSettings', Config)
 		return true
 	else
 		return false

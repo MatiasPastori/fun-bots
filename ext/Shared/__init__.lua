@@ -21,8 +21,6 @@ require('__shared/Constants/BotMoveSpeeds')
 require('__shared/Constants/SpawnModes')
 require('__shared/Constants/SpawnMethods')
 require('__shared/Constants/TeamSwitchModes')
-require('__shared/WeaponList')
-require('__shared/EbxEditUtils')
 require('__shared/Registry/Registry')
 
 ---@type Language
@@ -34,7 +32,7 @@ local m_Logger = Logger("FunBotShared", Debug.Shared.INFO)
 
 function FunBotShared:__init()
 	if Registry.COMMON.USE_LOAD_BUNDLE_BUGFIX then
-		Events:Subscribe('Level:LoadResources', self, self.OnLevelLoadResources) -- Load Resources.
+		Events:Subscribe('Level:LoadResources', self, self.OnLevelLoadResources)               -- Load Resources.
 		Events:Subscribe('Level:RegisterEntityResources', self, self.OnLevelRegisterEntityResources) -- Register Resource.
 		Hooks:Install('ResourceManager:LoadBundles', 5, self, self.OnResourceManagerLoadBundle)
 	end
