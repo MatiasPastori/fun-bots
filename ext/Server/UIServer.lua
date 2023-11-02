@@ -12,8 +12,7 @@ Language = require('__shared/Language')
 local m_NodeCollection = require('NodeCollection')
 ---@type SettingsManager
 local m_SettingsManager = require('SettingsManager')
--- @type NodeEditor
-local m_NodeEditor = require('NodeEditor')
+
 
 ---@type BotManager
 local BotManager = require('BotManager')
@@ -347,102 +346,6 @@ function FunBotUIServer:_onBotEditorEvent(p_Player, p_Data)
 		else
 			ChatManager:Yell(Language:I18N('Bots will not attack!', request.action), 2.5)
 		end
-		return
-
-		-- Trace.
-	elseif request.action == 'trace_start' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.Tracing') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeEditor:StartTrace(p_Player)
-		return
-	elseif request.action == 'trace_end' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.Tracing') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeEditor:EndTrace(p_Player)
-		return
-	elseif request.action == 'trace_save' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.Tracing') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		local s_Index = tonumber(request.value)
-		m_NodeEditor:SaveTrace(p_Player, s_Index)
-		return
-	elseif request.action == 'trace_clear' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.Tracing') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeEditor:ClearTrace(p_Player)
-		return
-	elseif request.action == 'trace_reset_all' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.Reset') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeCollection:Clear()
-		NetEvents:BroadcastLocal('NodeCollection:Clear')
-		return
-	elseif request.action == 'waypoints_server_load' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.SaveLoad') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeCollection:Load()
-		return
-	elseif request.action == 'waypoints_server_save' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.SaveLoad') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeCollection:Save()
-		return
-	elseif request.action == 'waypoints_show_spawns' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.View') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		Config.DrawSpawnPoints = not Config.DrawSpawnPoints
-		NetEvents:SendToLocal('WriteClientSettings', p_Player, Config, false)
-		return
-	elseif request.action == 'waypoints_show_lines' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.View') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		Config.DrawWaypointLines = not Config.DrawWaypointLines
-		NetEvents:SendToLocal('WriteClientSettings', p_Player, Config, false)
-		return
-	elseif request.action == 'waypoints_show_labels' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor.View') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		Config.DrawWaypointIDs = not Config.DrawWaypointIDs
-		NetEvents:SendToLocal('WriteClientSettings', p_Player, Config, false)
-		return
-		-- Waypoints-Editor
-	elseif request.action == 'request_waypoints_editor' then
-		if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor') == false then
-			ChatManager:SendMessage('You have no permissions for this action.', p_Player)
-			return
-		end
-		m_NodeEditor:OnOpenEditor(p_Player)
-		NetEvents:SendTo('UI_Waypoints_Editor', p_Player, true)
-		return
-	elseif request.action == 'disable_waypoint_editor' then
-		-- always allow to close editor
-		m_NodeEditor:OnCloseEditor(p_Player)
-		NetEvents:SendTo('UI_Waypoints_Disable', p_Player)
-		return
-	elseif request.action == 'hide_waypoints_editor' then
-		-- always allow to hide editor
-		m_NodeEditor:OnCloseEditor(p_Player)
-		NetEvents:SendTo('UI_Waypoints_Editor', p_Player, false)
 		return
 	else
 		ChatManager:Yell(Language:I18N('%s is currently not implemented', request.action), 2.5)

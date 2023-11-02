@@ -64,14 +64,6 @@ function Console:RegisterConsoleCommands(p_Player)
 
 		NetEvents:SendToLocal('ConsoleCommands:RegisterCommands', p_Player, s_CommandList)
 	end
-
-	-- Register events for NodeEditor.
-	if PermissionManager:HasPermission(p_Player, 'UserInterface.WaypointEditor') == false then
-		NetEvents:SendToLocal('ConsoleCommands:PrintResponse', p_Player,
-			"No Nodeeditor-Commands registered because of missing permissions")
-	else
-		NetEvents:SendToLocal('ClientNodeEditor:RegisterEvents', p_Player)
-	end
 end
 
 if g_Console == nil then

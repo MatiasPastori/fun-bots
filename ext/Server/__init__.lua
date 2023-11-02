@@ -31,7 +31,6 @@ require('__shared/EbxEditUtils')
 require('__shared/Utils/Logger')
 require('Vehicles')
 require('UIServer')
-require('UIPathMenu')
 require('Model/Globals')
 require('Constants/Permissions')
 
@@ -40,8 +39,8 @@ local m_Logger = Logger("FunBotServer", Debug.Server.INFO)
 
 require('__shared/Utilities')
 
----@type NodeEditor
-local m_NodeEditor = require('NodeEditor')
+---@type PathLoader
+local m_PathLoader = require('PathLoader')
 ---@type Language
 local m_Language = require('__shared/Language')
 ---@type SettingsManager
@@ -106,7 +105,6 @@ function FunBotServer:RegisterEvents()
 	Events:Subscribe('Player:Authenticated', self, self.OnPlayerAuthenticated)
 	Events:Subscribe('Player:Joining', self, self.OnPlayerJoining)
 	Events:Subscribe('Player:TeamChange', self, self.OnTeamChange)
-	Events:Subscribe('Player:Respawn', self, self.OnPlayerRespawn)
 	Events:Subscribe('Player:Killed', self, self.OnPlayerKilled)
 	Events:Subscribe('Player:Chat', self, self.OnPlayerChat)
 	Events:Subscribe('Player:Left', self, self.OnPlayerLeft)
@@ -145,7 +143,6 @@ function FunBotServer:RegisterCustomEvents()
 	NetEvents:Subscribe('ConsoleCommands:SaveAll', self, self.OnConsoleCommandSaveAll)
 	NetEvents:Subscribe('ConsoleCommands:Restore', self, self.OnConsoleCommandRestore)
 	NetEvents:Subscribe("SpawnPointHelper:TeleportTo", self, self.OnTeleportTo)
-	m_NodeEditor:RegisterCustomEvents()
 end
 
 function FunBotServer:RegisterCallbacks()
@@ -240,7 +237,6 @@ end
 ---@param p_SimulationDeltaTime number
 function FunBotServer:OnEngineUpdate(p_DeltaTime, p_SimulationDeltaTime)
 	m_GameDirector:OnEngineUpdate(p_DeltaTime)
-	m_NodeEditor:OnEngineUpdate(p_DeltaTime, p_SimulationDeltaTime)
 end
 
 ---VEXT Shared UpdateManager:Update Event
@@ -249,7 +245,6 @@ end
 function FunBotServer:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 	m_BotManager:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 	m_BotSpawner:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
-	m_NodeEditor:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 end
 
 function FunBotServer:OnScoringStatEvent(p_Player, p_ObjectPlayer, p_StatEvent, p_ParamX, p_ParamY, p_Value)
@@ -312,7 +307,7 @@ function FunBotServer:OnLevelLoaded(p_LevelName, p_GameMode, p_Round, p_RoundsPe
 	self:SetGameMode(p_GameMode, p_LevelName)
 	self:SetMaxBotsPerTeam(p_GameMode)
 
-	m_NodeEditor:OnLevelLoaded(p_LevelName, p_GameMode, s_CustomGameMode)
+	m_PathLoader:OnLevelLoaded(p_LevelName, p_GameMode, s_CustomGameMode)
 	m_GameDirector:OnLevelLoaded()
 	m_AirTargets:OnLevelLoaded()
 	m_BotSpawner:OnLevelLoaded(p_Round)
@@ -322,7 +317,7 @@ end
 function FunBotServer:OnLevelDestroy()
 	m_BotManager:OnLevelDestroy()
 	m_BotSpawner:OnLevelDestroy()
-	m_NodeEditor:OnLevelDestroy()
+	m_PathLoader:OnLevelDestroy()
 	m_AirTargets:OnLevelDestroy()
 	local s_OldMemory = math.floor(collectgarbage("count") / 1024)
 	collectgarbage('collect')
@@ -370,12 +365,6 @@ function FunBotServer:OnTeamChange(p_Player, p_TeamId, p_SquadId)
 	m_BotSpawner:OnTeamChange(p_Player, p_TeamId, p_SquadId)
 end
 
----VEXT Server Player:Respawn Event
----@param p_Player Player
-function FunBotServer:OnPlayerRespawn(p_Player)
-	m_NodeEditor:OnPlayerRespawn(p_Player)
-end
-
 ---VEXT Server Player:Killed Event
 ---@param p_Player Player
 ---@param p_Inflictor Player|nil
@@ -386,7 +375,6 @@ end
 ---@param p_WasVictimInReviveState boolean
 ---@param p_Info DamageGiverInfo
 function FunBotServer:OnPlayerKilled(p_Player, p_Inflictor, p_Position, p_Weapon, p_IsRoadKill, p_IsHeadShot, p_WasVictimInReviveState, p_Info)
-	m_NodeEditor:OnPlayerKilled(p_Player)
 	m_AirTargets:OnPlayerKilled(p_Player)
 end
 
@@ -403,13 +391,11 @@ end
 ---@param p_Player Player
 function FunBotServer:OnPlayerLeft(p_Player)
 	m_BotManager:OnPlayerLeft(p_Player)
-	m_NodeEditor:OnPlayerLeft(p_Player)
 end
 
 ---VEXT Server Player:Destroyed Event
 ---@param p_Player Player
 function FunBotServer:OnPlayerDestroyed(p_Player)
-	m_NodeEditor:OnPlayerDestroyed(p_Player)
 	m_AirTargets:OnPlayerDestroyed(p_Player)
 end
 

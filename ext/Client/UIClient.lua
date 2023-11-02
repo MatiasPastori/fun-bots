@@ -4,13 +4,11 @@ FunBotUIClient = class 'FunBotUIClient'
 
 require('UIViews')
 require('UISettings')
-require('ClientNodeEditor')
 
 Language = require('__shared/Language')
 
 function FunBotUIClient:__init()
 	self._views = UIViews()
-	self.m_InWaypointEditor = false
 	self.m_InCommScreen = false
 	self.m_WaitForKeyLeft = false
 
@@ -19,8 +17,6 @@ function FunBotUIClient:__init()
 		Events:Subscribe('UI_Toggle', self, self._onUIToggle)
 		NetEvents:Subscribe('BotEditor', self, self._onBotEditorEvent)
 		Events:Subscribe('BotEditor', self, self._onBotEditorEvent)
-		NetEvents:Subscribe('PathMenu:Request', self, self._OnPathMenuRequest)
-		Events:Subscribe('PathMenu:Request', self, self._OnPathMenuRequest)
 		NetEvents:Subscribe('UI_Show_Toolbar', self, self._onUIShowToolbar)
 		NetEvents:Subscribe('UI_Settings', self, self._onUISettings)
 		NetEvents:Subscribe('UI_CommoRose', self, self._onUICommoRose)
@@ -29,16 +25,6 @@ function FunBotUIClient:__init()
 		NetEvents:Subscribe('UI_Change_Language', self, self._onUIChangeLanguage)
 		Events:Subscribe('UI_Change_Language', self, self._onUIChangeLanguage)
 
-		NetEvents:Subscribe('UI_Waypoints_Editor', self, self._onUIWaypointsEditor)
-		Events:Subscribe('UI_Waypoints_Editor', self, self._onUIWaypointsEditor)
-		NetEvents:Subscribe('UI_Waypoints_Disable', self, self._onUIWaypointsEditorDisable)
-		Events:Subscribe('UI_Waypoints_Disable', self, self._onUIWaypointsEditorDisable)
-		NetEvents:Subscribe('UI_Trace', self, self._onUITrace)
-		Events:Subscribe('UI_Trace', self, self._onUITrace)
-		NetEvents:Subscribe('UI_Trace_Index', self, self._onUITraceIndex)
-		Events:Subscribe('UI_Trace_Index', self, self._onUITraceIndex)
-		NetEvents:Subscribe('UI_Trace_Waypoints', self, self._onUITraceWaypoints)
-		Events:Subscribe('UI_Trace_Waypoints', self, self._onUITraceWaypoints)
 
 		self._views:setLanguage(Config.Language)
 	end
@@ -82,79 +68,6 @@ end
 
 function FunBotUIClient:_onSetOperationControls(p_Data)
 	self._views:execute('BotEditor.setOperationControls(\'' .. json.encode(p_Data) .. '\')')
-end
-
-function FunBotUIClient:_onUIWaypointsEditor(p_State)
-	if Config.DisableUserInterface == true then
-		return
-	end
-
-	if p_State == false then
-		if Debug.Client.UI then
-			print('UIClient: close UI_Waypoints_Editor')
-		end
-
-		self._views:hide('waypoint_toolbar')
-		self._views:execute('BotEditor.setCommoRose(false)')
-		self._views:show('toolbar')
-		Config.DebugTracePaths = false
-		self.m_InWaypointEditor = false
-		g_ClientNodeEditor:OnSetEnabled(false)
-		g_ClientSpawnPointHelper:OnSetEnabled(false)
-	else
-		if Debug.Client.UI then
-			print('UIClient: open UI_Waypoints_Editor')
-		end
-
-		Config.DebugTracePaths = true
-		g_ClientNodeEditor:OnSetEnabled(true)
-		g_ClientSpawnPointHelper:OnSetEnabled(true)
-		self._views:show('waypoint_toolbar')
-		self._views:hide('toolbar')
-		self.m_InWaypointEditor = true
-		self._views:disable()
-	end
-end
-
-function FunBotUIClient:_onUIWaypointsEditorDisable()
-	if self.m_InWaypointEditor then
-		NetEvents:Send('PathMenu:Hide')
-		self._views:disable()
-	end
-end
-
-function FunBotUIClient:_onUITraceIndex(p_Index)
-	if Config.DisableUserInterface == true then
-		return
-	end
-
-	self._views:execute('BotEditor.updateTraceIndex(' .. tostring(p_Index) .. ')')
-end
-
-function FunBotUIClient:_onUITraceWaypoints(p_Count)
-	if Config.DisableUserInterface == true then
-		return
-	end
-
-	self._views:execute('BotEditor.updateTraceWaypoints(' .. tostring(p_Count) .. ')')
-end
-
-function FunBotUIClient:_onUITraceWaypointsDistance(p_Distance)
-	if Config.DisableUserInterface == true then
-		return
-	end
-
-	self._views:execute('BotEditor.updateTraceWaypointsDistance(' .. string.format('%4.2f', p_Distance) .. ')')
-end
-
-function FunBotUIClient:_onUITrace(p_State)
-	if Config.DisableUserInterface == true then
-		return
-	end
-
-	self._views:execute('BotEditor.toggleTraceRun(' .. tostring(p_State) .. ')')
-	NetEvents:Send('PathMenu:Hide')
-	self._views:disable()
 end
 
 function FunBotUIClient:_onUISettings(p_Data)
@@ -267,14 +180,6 @@ function FunBotUIClient:_onBotEditorEvent(p_Data)
 	NetEvents:Send('BotEditor', p_Data)
 end
 
-function FunBotUIClient:_OnPathMenuRequest(p_Data)
-	if Config.DisableUserInterface == true or not self.m_InWaypointEditor then
-		return
-	end
-	-- Redirect to Server.
-	NetEvents:Send('PathMenu:Request', p_Data)
-end
-
 function FunBotUIClient:_onUIShowToolbar(p_Data)
 	if Config.DisableUserInterface == true then
 		return
@@ -306,21 +211,13 @@ function FunBotUIClient:OnClientUpdateInput(p_DeltaTime)
 		end
 
 		-- This request can be used for UI-Toggle.
-		if self.m_InWaypointEditor then
-			self._views:enable()
-			NetEvents:Send('PathMenu:Unhide')
-		else
-			NetEvents:Send('UI_Request_Open')
-		end
+		NetEvents:Send('UI_Request_Open')
 
 		return
-	elseif InputManager:WentKeyUp(InputDeviceKeys.IDK_LeftAlt) and self.m_InWaypointEditor then
-		self._views:enable()
-		NetEvents:Send('PathMenu:Unhide')
-	elseif InputManager:WentKeyDown(Registry.COMMON.BOT_COMMAND_KEY) and not self.m_InWaypointEditor and
+	elseif InputManager:WentKeyDown(Registry.COMMON.BOT_COMMAND_KEY) and
 		not self.m_InCommScreen and not self.m_WaitForKeyLeft then
 		NetEvents:Send('UI_Request_CommoRose_Show')
-	elseif InputManager:WentKeyUp(Registry.COMMON.BOT_COMMAND_KEY) and not self.m_InWaypointEditor and
+	elseif InputManager:WentKeyUp(Registry.COMMON.BOT_COMMAND_KEY) and
 		(self.m_InCommScreen or self.m_WaitForKeyLeft) then
 		if self.m_InCommScreen then
 			self:_onUICommoRose("false") -- To-do: Remove Permission-Check?

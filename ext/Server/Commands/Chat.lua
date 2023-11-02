@@ -432,60 +432,6 @@ function ChatCommands:Execute(p_Parts, p_Player)
 		end
 
 		m_BotManager:KillAll()
-		-- Waypoint stuff.
-	elseif p_Parts[1] == '!trace' then
-		if PermissionManager:HasPermission(p_Player, 'ChatCommands.Trace') == false then
-			ChatManager:SendMessage('You have no permissions for this action (ChatCommands.Trace).', p_Player)
-			return
-		end
-
-		NetEvents:SendToLocal('ClientNodeEditor:StartTrace', p_Player)
-	elseif p_Parts[1] == '!tracedone' then
-		if PermissionManager:HasPermission(p_Player, 'ChatCommands.TraceDone') == false then
-			ChatManager:SendMessage('You have no permissions for this action (ChatCommands.TraceDone).', p_Player)
-			return
-		end
-
-		NetEvents:SendToLocal('ClientNodeEditor:EndTrace', p_Player)
-	elseif p_Parts[1] == '!cleartrace' then
-		if PermissionManager:HasPermission(p_Player, 'ChatCommands.ClearTrace') == false then
-			ChatManager:SendMessage('You have no permissions for this action (ChatCommands.ClearTrace).', p_Player)
-			return
-		end
-
-		NetEvents:SendToLocal('ClientNodeEditor:ClearTrace', p_Player)
-	elseif p_Parts[1] == '!clearalltraces' then
-		if PermissionManager:HasPermission(p_Player, 'ChatCommands.ClearAllTraces') == false then
-			ChatManager:SendMessage('You have no permissions for this action (ChatCommands.ClearAllTraces).', p_Player)
-			return
-		end
-
-		m_NodeCollection:Clear()
-		NetEvents:SendToLocal('NodeCollection:Clear', p_Player)
-	elseif p_Parts[1] == '!printtrans' then
-		if PermissionManager:HasPermission(p_Player, 'ChatCommands.PrintTransform') == false then
-			ChatManager:SendMessage('You have no permissions for this action (ChatCommands.PrintTransform).', p_Player)
-			return
-		end
-
-		print('!printtrans')
-		ChatManager:Yell('!printtrans check server console', 2.5)
-		print(p_Player.soldier.worldTransform)
-		print(p_Player.soldier.worldTransform.trans.x)
-		print(p_Player.soldier.worldTransform.trans.y)
-		print(p_Player.soldier.worldTransform.trans.z)
-	elseif p_Parts[1] == '!tracesave' then
-		if PermissionManager:HasPermission(p_Player, 'ChatCommands.TraceSave') == false then
-			ChatManager:SendMessage('You have no permissions for this action (ChatCommands.TraceSave).', p_Player)
-			return
-		end
-
-		local s_TraceIndex = tonumber(p_Parts[2]) or 0
-		NetEvents:SendToLocal('ClientNodeEditor:SaveTrace', p_Player, s_TraceIndex)
-
-		-- Section: Debugging, Bug Reporting and error logging.
-		-- Command: !bugreport
-		-- Permission: Debug.BugReport
 	elseif p_Parts[1] == '!bugreport' then
 		if PermissionManager:HasPermission(p_Player, 'Debug.BugReport') == false then
 			ChatManager:SendMessage('You have no permissions for this action (Debug.BugReport).', p_Player)

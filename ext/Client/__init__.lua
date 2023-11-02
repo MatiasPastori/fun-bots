@@ -30,10 +30,6 @@ local m_Logger = Logger("FunBotClient", Debug.Client.INFO)
 
 ---@type ClientBotManager
 local m_ClientBotManager = require('ClientBotManager')
----@type ClientNodeEditor
-local m_ClientNodeEditor = require('ClientNodeEditor')
----@type ClientSpawnPointHelper
-local m_ClientSpawnPointHelper = require('ClientSpawnPointHelper')
 ---@type ConsoleCommands
 local m_ConsoleCommands = require('ConsoleCommands')
 ---@type Language
@@ -64,22 +60,16 @@ function FunBotClient:RegisterEvents()
 	Events:Subscribe('Level:Destroy', self, self.OnLevelDestroy)
 	Events:Subscribe('Player:Deleted', self, self.OnPlayerDeleted)
 	Events:Subscribe('Client:UpdateInput', self, self.OnClientUpdateInput)
-	Events:Subscribe('Engine:Update', self, self.OnEngineUpdate)
 	Events:Subscribe('Player:Respawn', self, self.OnPlayerRespawn)
-	Events:Subscribe('UI:DrawHud', self, self.OnUIDrawHud)
-	Events:Subscribe('Partition:Loaded', self, self.OnPartitionLoaded)
 
 	NetEvents:Subscribe('WriteClientSettings', self, self.OnWriteClientSettings)
 	NetEvents:Subscribe('CheckBotBotAttack', self, self.CheckForBotBotAttack)
-	NetEvents:Subscribe('UI_Settings', self, self.OnUISettings)
 
 	NetEvents:Subscribe('ConsoleCommands:RegisterCommands', self, self.OnRegisterConsoleCommands)
 	NetEvents:Subscribe('ConsoleCommands:PrintResponse', self, self.OnPrintResponse)
-	NetEvents:Subscribe('ClientNodeEditor:RegisterEvents', self, self.OnRegisterNodeEditorEvents)
 end
 
 function FunBotClient:RegisterHooks()
-	Hooks:Install('UI:PushScreen', 1, self, self.OnUIPushScreen)
 	Hooks:Install('Input:PreUpdate', 100, self, self.OnInputPreUpdate)
 end
 
@@ -111,7 +101,6 @@ end
 ---@param p_UpdatePass UpdatePass|integer
 function FunBotClient:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 	m_ClientBotManager:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
-	m_ClientNodeEditor:OnUpdateManagerUpdate(p_DeltaTime, p_UpdatePass)
 end
 
 ---VEXT Shared Extension:Unloading Event
@@ -123,42 +112,18 @@ end
 ---VEXT Shared Level:Destroy Event
 function FunBotClient:OnLevelDestroy()
 	m_ClientBotManager:OnLevelDestroy()
-	m_ClientNodeEditor:OnLevelDestroy()
-	m_ClientSpawnPointHelper:OnLevelDestroy()
 end
 
 ---VEXT Client Player:Deleted Event
 ---@param p_Player Player
 function FunBotClient:OnPlayerDeleted(p_Player)
-	m_ClientNodeEditor:OnPlayerDeleted(p_Player)
 end
 
 ---VEXT Client Client:UpdateInput Event
 ---@param p_DeltaTime number
 function FunBotClient:OnClientUpdateInput(p_DeltaTime)
-	m_ClientNodeEditor:OnClientUpdateInput(p_DeltaTime)
 	m_ClientBotManager:OnClientUpdateInput(p_DeltaTime)
-	m_ClientSpawnPointHelper:OnClientUpdateInput(p_DeltaTime)
 	m_FunBotUIClient:OnClientUpdateInput(p_DeltaTime)
-end
-
----VEXT Shared Engine:Update Event
----@param p_DeltaTime number
----@param p_SimulationDeltaTime number
-function FunBotClient:OnEngineUpdate(p_DeltaTime, p_SimulationDeltaTime)
-	-- m_ClientNodeEditor:OnEngineUpdate(p_DeltaTime, p_SimulationDeltaTime)
-end
-
----VEXT Client UI:DrawHud Event
-function FunBotClient:OnUIDrawHud()
-	m_ClientNodeEditor:OnUIDrawHud()
-	m_ClientSpawnPointHelper:OnUIDrawHud()
-end
-
----VEXT Shared Partition:Loaded Event
----@param p_Partition DatabasePartition
-function FunBotClient:OnPartitionLoaded(p_Partition)
-	m_ClientSpawnPointHelper:OnPartitionLoaded(p_Partition)
 end
 
 -- =============================================
@@ -179,16 +144,8 @@ function FunBotClient:CheckForBotBotAttack(p_RaycastData)
 	m_ClientBotManager:CheckForBotBotAttack(p_RaycastData)
 end
 
-function FunBotClient:OnUISettings(p_Data)
-	m_ClientNodeEditor:OnUISettings(p_Data)
-end
-
 function FunBotClient:OnRegisterConsoleCommands(p_ConfigList)
 	m_ConsoleCommands:OnRegisterConsoleCommands(p_ConfigList)
-end
-
-function FunBotClient:OnRegisterNodeEditorEvents()
-	m_ClientNodeEditor:OnRegisterEvents()
 end
 
 function FunBotClient:OnPrintResponse(p_Response)
@@ -205,16 +162,6 @@ end
 ---@param p_DeltaTime number
 function FunBotClient:OnInputPreUpdate(p_HookCtx, p_Cache, p_DeltaTime)
 	m_ClientBotManager:OnInputPreUpdate(p_HookCtx, p_Cache, p_DeltaTime)
-end
-
----VEXT Client UI:PushScreen Hook
----@param p_HookCtx HookContext
----@param p_Screen DataContainer
----@param p_Priority UIGraphPriority
----@param p_ParentGraph DataContainer
----@param p_StateNodeGuid Guid|nil
-function FunBotClient:OnUIPushScreen(p_HookCtx, p_Screen, p_Priority, p_ParentGraph, p_StateNodeGuid)
-	m_ClientNodeEditor:OnUIPushScreen(p_HookCtx, p_Screen, p_Priority, p_ParentGraph, p_StateNodeGuid)
 end
 
 return FunBotClient()
