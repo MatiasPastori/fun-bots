@@ -4,7 +4,6 @@ FunBotServer = class('FunBotServer')
 
 -- The registry should be loaded first before loading anything else.
 require('__shared/Registry/Registry')
-require('__shared/Registry/RegistryManager')
 
 require('__shared/Debug')
 require('__shared/Config')
@@ -56,8 +55,6 @@ local m_BotCreator = require('BotCreator')
 local m_BotSpawner = require('BotSpawner')
 ---@type WeaponList
 local m_WeaponList = require('__shared/WeaponList')
----@type BugReport
-local m_bugReport = require('Debug/BugReport')
 ---@type ChatCommands
 local m_ChatCommands = require('Commands/Chat')
 ---@type Console
@@ -133,6 +130,8 @@ function FunBotServer:RegisterEvents()
 	Events:Subscribe('CombatArea:PlayerDeserting', self, self.OnCombatAreaDeserting)
 	Events:Subscribe('CombatArea:PlayerReturning', self, self.OnCombatAreaReturning)
 	Events:Subscribe('LifeCounter:BaseDestroyed', self, self.OnLifeCounterBaseDestoyed)
+
+	Events:Subscribe('NodeCollection:FinishedLoading', self, self.OnFinishedLoading)
 end
 
 function FunBotServer:RegisterHooks()
@@ -304,6 +303,7 @@ function FunBotServer:OnLevelLoaded(p_LevelName, p_GameMode, p_Round, p_RoundsPe
 	-- Only use name of Level.
 	p_LevelName = p_LevelName:gsub(".+/.+/", "")
 	Globals.LevelName = p_LevelName
+	Globals.Round = p_Round
 	m_Logger:Write('OnLevelLoaded: ' .. p_LevelName .. ' ' .. p_GameMode)
 
 	self:SetRespawnDelay()
@@ -321,10 +321,15 @@ function FunBotServer:OnLevelLoaded(p_LevelName, p_GameMode, p_Round, p_RoundsPe
 		self:DestroyObstacles(p_LevelName, p_GameMode)
 	end
 
-	m_NodeEditor:OnLevelLoaded(p_LevelName, p_GameMode, s_CustomGameMode)
 	m_GameDirector:OnLevelLoaded()
 	m_AirTargets:OnLevelLoaded()
-	m_BotSpawner:OnLevelLoaded(p_Round)
+	m_BotSpawner:OnLevelLoaded(Globals.Round)
+	m_NodeEditor:OnLevelLoaded(p_LevelName, p_GameMode, s_CustomGameMode)
+end
+
+function FunBotServer:OnFinishedLoading()
+	m_NodeEditor:EndOfLoad()
+	m_GameDirector:OnLoadFinished()
 end
 
 function FunBotServer:DestroyObstacles(p_LevelName, p_GameMode)
@@ -349,6 +354,7 @@ function FunBotServer:OnLevelDestroy()
 	m_BotSpawner:OnLevelDestroy()
 	m_NodeEditor:OnLevelDestroy()
 	m_AirTargets:OnLevelDestroy()
+	m_GameDirector:OnLevelDestroy()
 	local s_OldMemory = math.floor(collectgarbage("count") / 1024)
 	collectgarbage('collect')
 	m_Logger:Write("*Collecting Garbage on Level Destroy: " ..
@@ -533,8 +539,10 @@ function FunBotServer:OnEntityFactoryCreate(p_HookCtx, p_EntityData, p_Transform
 			if not s_CreatedEntity then
 				return
 			end
+			local s_TimeDelay = s_MissileEntityData.engineTimeToIgnition + s_MissileEntityData.timeToActivateGuidingSystem
+			local s_MaxSpeed = s_MissileEntityData.maxSpeed
 
-			m_BotManager:CheckForFlareOrSmoke(s_CreatedEntity)
+			m_BotManager:CheckForFlareOrSmoke(s_CreatedEntity, s_MaxSpeed, s_TimeDelay)
 		end
 	end
 	if Registry.DEBUG.VEHICLE_PROJECTILE_TRACE then
