@@ -611,7 +611,9 @@ function GameDirector:OnVehicleSpawnDone(p_Entity)
 		s_Gunship.Entity = p_Entity
 		s_Gunship.Team = self.m_GunshipObjectiveTeam
 
+		-- Just trying out something(?)
 		self.m_Gunship = s_Gunship
+		table.insert(self.m_SpawnableStationaryAas[self.m_Gunship.Team], self.m_Gunship.Entity)
 	end
 end
 
@@ -625,6 +627,8 @@ function GameDirector:OnVehicleUnspawn(p_Entity, p_VehiclePoints, p_HotTeam)
 
 	if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) then
 		m_Logger:Write("Gunship unspawn")
+		local gunshipIndex = table.IndexOf(self.m_SpawnableStationaryAas[self.m_Gunship.Team], self.m_Gunship.Entity)
+		table.remove(self.m_SpawnableStationaryAas[self.m_Gunship.Team], gunshipIndex)
 		self.m_Gunship = nil
 	end
 
