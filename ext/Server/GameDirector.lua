@@ -30,6 +30,7 @@ function GameDirector:RegisterVars()
 	self.m_SpawnableStationaryAas = {}
 	self.m_SpawnableVehicles = {}
 	self.m_AvailableVehicles = {}
+	self.m_AvailableGunships = {}
 	self.m_Beacons = {}
 	self.m_Gunship = nil
 	self.m_GunshipObjectiveName = nil
@@ -57,6 +58,7 @@ function GameDirector:OnLevelLoaded()
 		self.m_SpawnableVehicles[i] = {}
 		self.m_SpawnableStationaryAas[i] = {}
 		self.m_AvailableVehicles[i] = {}
+		self.m_AvailableGunships[i] = {}
 	end
 end
 
@@ -534,6 +536,12 @@ function GameDirector:GetSpawnableVehicle(p_TeamId)
 	return self.m_SpawnableVehicles[p_TeamId]
 end
 
+---@param p_TeamId TeamId
+---@return ControllableEntity|Entity
+function GameDirector:GetGunship(p_TeamId)
+	return self.m_AvailableGunships[p_TeamId].entity
+end
+
 function GameDirector:GetStationaryAas(p_TeamId)
 	return self.m_SpawnableStationaryAas[p_TeamId]
 end
@@ -644,18 +652,18 @@ function GameDirector:OnVehicleSpawnDone(p_Entity)
 		table.insert(self.m_SpawnableStationaryAas[s_VehicleData.Team], p_Entity)
 	end
 
-	if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship)
-		and self.m_GunshipObjectiveTeam ~= nil
-	then
-		m_Logger:Write("Spawned gunship, team: " .. self.m_GunshipObjectiveTeam)
+	if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) then
+		if self.m_GunshipObjectiveTeam then
+			m_Logger:Write("Spawned gunship, team: " .. self.m_GunshipObjectiveTeam)
 
-		local s_Gunship = {}
-		s_Gunship.Entity = p_Entity
-		s_Gunship.Team = self.m_GunshipObjectiveTeam
-
+			local s_Gunship = {}
+			s_Gunship.Entity = p_Entity
+			s_Gunship.Team = self.m_GunshipObjectiveTeam
+			self.m_Gunship = s_Gunship
+		end
 		-- Just trying out something(?)
-		self.m_Gunship = s_Gunship
-		table.insert(self.m_SpawnableStationaryAas[self.m_Gunship.Team], self.m_Gunship.Entity)
+		print("Gunship spawned and available for team: " .. p_Entity.teamId)
+		table.insert(self.m_AvailableGunships[p_Entity.teamId], p_Entity)
 	end
 end
 
@@ -671,10 +679,12 @@ function GameDirector:OnVehicleUnspawn(p_Entity, p_VehiclePoints, p_HotTeam)
 	end
 
 	if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) then
+		print('About to check the gunship unspawn')
 		m_Logger:Write("Gunship unspawn")
-		local gunshipIndex = table.IndexOf(self.m_SpawnableStationaryAas[self.m_Gunship.Team], self.m_Gunship.Entity)
-		table.remove(self.m_SpawnableStationaryAas[self.m_Gunship.Team], gunshipIndex)
+		local gunshipIndex = table.IndexOf(self.m_AvailableGunships[p_Entity.teamId], p_Entity)
+		table.remove(self.m_AvailableGunships[p_Entity.teamId], gunshipIndex)
 		self.m_Gunship = nil
+		print('Gunship no longer available for team: ' .. p_Entity.teamId)
 	end
 
 	if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gadgets) then
@@ -724,6 +734,13 @@ function GameDirector:OnVehicleEnter(p_Entity, p_Player)
 			for l_Index, l_Entity in pairs(self.m_SpawnableStationaryAas[p_Player.teamId]) do
 				if (l_Entity.uniqueId == p_Entity.uniqueId) and (l_Entity.instanceId == p_Entity.instanceId) then
 					table.remove(self.m_SpawnableStationaryAas[p_Player.teamId], l_Index)
+					break -- should only happen once
+				end
+			end
+		elseif m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) then
+			for l_Index, l_Entity in pairs(self.m_AvailableGunships[p_Player.teamId]) do
+				if (l_Entity.uniqueId == p_Entity.uniqueId) and (l_Entity.instanceId == p_Entity.instanceId) then
+					table.remove(self.m_AvailableGunships[p_Player.teamId], l_Index)
 					break -- should only happen once
 				end
 			end

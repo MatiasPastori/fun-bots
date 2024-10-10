@@ -1156,6 +1156,11 @@ function BotSpawner:_SpawnSingleWayBot(p_Player, p_UseRandomWay, p_ActiveWayInde
 							break
 						end
 					end
+				elseif s_SpawnPoint == "SpawnInGunship" then
+					local s_Gunship = g_GameDirector:GetGunship(s_TeamId)
+					if s_Gunship ~= nil then
+						s_SpawnEntity = s_Gunship
+					end
 				end
 
 				if s_IsRespawn and p_ExistingBot then
@@ -1332,6 +1337,10 @@ function BotSpawner:_GetSpawnPoint(p_TeamId, p_SquadId)
 
 	if Config.AABots and #g_GameDirector:GetStationaryAas(p_TeamId) > 0 then
 		return "SpawnInAa"
+	end
+
+	if g_GameDirector:GetGunship(p_TeamId) then
+		return "SpawnInGunship"
 	end
 
 	-- CONQUEST

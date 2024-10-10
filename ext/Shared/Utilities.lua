@@ -191,6 +191,19 @@ function table:has(p_Value)
 	return false
 end
 
+---@param t table
+---@param object 'object'
+---@return number?
+function table.IndexOf(t, object)
+	if type(t) ~= "table" then error("table expected, got " .. type(t), 2) end
+
+	for i, v in pairs(t) do
+		if object == v then
+			return i
+		end
+	end
+end
+
 ---@param p_Value string
 ---@return boolean
 function string:isLower(p_Value)

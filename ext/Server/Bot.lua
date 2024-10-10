@@ -1228,6 +1228,10 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 		s_MaxEntries = 1
 	end
 
+	if s_VehicleData.Type == VehicleTypes.Gunship then
+		s_MaxEntries = 2
+	end
+
 	if not p_PlayerIsDriver then
 		-- Leave a place for a player if more than two seats are available.
 		if s_MaxEntries > 2 then
@@ -1244,19 +1248,21 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 		end
 	end
 
-	for i = 0, s_MaxEntries - 1 do
-		if p_Entity:GetPlayerInEntry(i) == nil then
-			self.m_Player:EnterVehicle(p_Entity, i)
+	for seatIndex = 0, s_MaxEntries - 1 do
+		if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) and seatIndex == 0 then
+			goto continue
+		end
+		if p_Entity:GetPlayerInEntry(seatIndex) == nil then
+			self.m_Player:EnterVehicle(p_Entity, seatIndex)
 			self._ExitVehicleHealth = PhysicsEntity(p_Entity).internalHealth * (Registry.VEHICLES.VEHICLE_EXIT_HEALTH / 100.0)
 
 			-- Get ID.
 			self.m_ActiveVehicle = s_VehicleData
 			self._ActiveVehicleWeaponSlot = 0
-			self._VehicleMovableId = m_Vehicles:GetPartIdForSeat(self.m_ActiveVehicle, i, self._ActiveVehicleWeaponSlot)
-			-- m_Logger:Write(self.m_ActiveVehicle)
-
-			if i == 0 then
-				if i == s_MaxEntries - 1 then
+			self._VehicleMovableId = m_Vehicles:GetPartIdForSeat(self.m_ActiveVehicle, seatIndex, self._ActiveVehicleWeaponSlot)
+			m_Logger:Write(self.m_ActiveVehicle)
+			if seatIndex == 0 then
+				if seatIndex == s_MaxEntries - 1 then
 					self._VehicleWaitTimer = 0.5 -- Always wait a short time to check for free start.
 					self._VehicleTakeoffTimer = Registry.VEHICLES.JET_TAKEOFF_TIME
 					g_GameDirector:_SetVehicleObjectiveState(p_Entity.transform.trans, false)
@@ -1267,7 +1273,7 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 			else
 				self._VehicleWaitTimer = 0.0
 
-				if i == s_MaxEntries - 1 then
+				if seatIndex == s_MaxEntries - 1 then
 					-- Last seat taken: Disable vehicle and abort, wait for passengers.
 					local s_Driver = p_Entity:GetPlayerInEntry(0)
 
@@ -1280,6 +1286,7 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 			self:_SetActiveVars() -- Update if "on vehicle" or "in vehicle".
 			return 0, s_Position -- Everything fine.
 		end
+		::continue::
 	end
 
 	-- No place left.
