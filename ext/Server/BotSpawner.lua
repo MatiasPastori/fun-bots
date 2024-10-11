@@ -1340,7 +1340,7 @@ function BotSpawner:_GetSpawnPoint(p_TeamId, p_SquadId)
 	local s_Gunship = g_GameDirector:GetGunship(p_TeamId)
 	if s_Gunship ~= nil then -- if enableParadrop
 		local s_SeatsLeft = false
-		for i = 1, s_Gunship.entryCount - 1 do
+		for i = 0, s_Gunship.entryCount do
 			if s_Gunship:GetPlayerInEntry(i) == nil then
 				s_SeatsLeft = true
 				break
