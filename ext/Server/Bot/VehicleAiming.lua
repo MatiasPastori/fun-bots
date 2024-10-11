@@ -129,7 +129,11 @@ function VehicleAiming:UpdateAimingVehicle(p_Bot, p_AdvancedAlgorithm)
 	local s_WorseningYaw = 0.0
 	local s_WorseningValue = 0.0
 
-	if s_IsAirVehicle then
+	if m_Vehicles:IsVehicleType(p_Bot.m_ActiveVehicle, VehicleTypes.Gunship) then
+		s_WorseningValue = Config.GunshipAimWorsening
+	elseif m_Vehicles:IsAAVehicle(p_Bot.m_ActiveVehicle) then
+		s_WorseningValue = Config.AntiAirAimWorsening
+	elseif s_IsAirVehicle then
 		s_WorseningValue = Config.VehicleAimWorsening
 	else
 		s_WorseningValue = Config.VehicleAirAimWorsening

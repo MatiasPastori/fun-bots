@@ -27,6 +27,8 @@ Config = {
 	DamageFactorKnife = 1.5,			-- Original Damage from bots gets multiplied by this 
 	VehicleAimWorsening = 0.05,			-- Make bots in vehicles aim worse: for difficulty: 0 = no offset (hard), 1 or even greater = more sway (easy) 
 	VehicleAirAimWorsening = 0.02,		-- See VehicleAimWorsening, only for Air-Vehicles 
+	GunshipAimWorsening = 1.70,			-- See botAimWorsening, only for LMGs 
+	AntiAirAimWorsening = 2.00,			-- See botAimWorsening, only for LMGs 
 	DamageFactorVehicles = 1.0,			-- Original Damage from bots in vehicles gets multiplied by this 
 
 	-- SPAWN 
@@ -93,8 +95,9 @@ Config = {
 	FovVerticleChopperForShooting = 80,	-- Degrees of pitch a chopper attacks 
 	FovVehicleAAForShooting = 360,		-- Degrees of FOV of AA - Vehicles 
 	FovVerticleVehicleAAForShooting = 160,	-- Degrees of FOV of AA - Vehicles 
-	MaxShootDistanceVehicles = 250,		-- Meters bots in Vehicles start shooting at players 
-	MaxShootDistanceNoAntiAir = 150,	-- Meters bots in vehicle (no Anti-Air) starts shooting at players 
+	MaxShootDistanceVehicles = 250,		-- Meters bots in Air vehicles / Mobile Artillery / AA start shooting at players 
+	MaxShootDistanceLandVehicles = 150,	-- Meters bots in a land vehicle ( Tanks, LAV, Humvees, etc) starts shooting at players 
+	MaxShootDistanceGunship = 800,		-- Max meters distance for bots in a Gunship to start shooting at players 
 	VehicleWaitForPassengersTime = 7.0,	-- Seconds to wait for other passengers 
 	ChopperDriversAttack = false,		-- If false, choppers only attack without gunner on board 
 	VehicleMoveWhileShooting = true,	-- Vehicles like tanks do not stop for shooting 

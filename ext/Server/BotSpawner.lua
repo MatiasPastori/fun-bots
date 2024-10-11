@@ -1157,11 +1157,9 @@ function BotSpawner:_SpawnSingleWayBot(p_Player, p_UseRandomWay, p_ActiveWayInde
 						end
 					end
 				elseif s_SpawnPoint == "SpawnInGunship" then
-					local s_Gunship = g_GameDirector:GetGunship(s_TeamId)
-					if s_Gunship ~= nil then
-						s_SpawnEntity = s_Gunship
-					end
+					s_SpawnEntity = g_GameDirector:GetGunship(s_TeamId)
 				end
+
 
 				if s_IsRespawn and p_ExistingBot then
 					p_ExistingBot:SetVarsWay(nil, true, 0, 0, false)
@@ -1339,8 +1337,18 @@ function BotSpawner:_GetSpawnPoint(p_TeamId, p_SquadId)
 		return "SpawnInAa"
 	end
 
-	if g_GameDirector:GetGunship(p_TeamId) then
-		return "SpawnInGunship"
+	local s_Gunship = g_GameDirector:GetGunship(p_TeamId)
+	if s_Gunship ~= nil then -- if enableParadrop
+		local s_SeatsLeft = false
+		for i = 1, s_Gunship.entryCount - 1 do
+			if s_Gunship:GetPlayerInEntry(i) == nil then
+				s_SeatsLeft = true
+				break
+			end
+		end
+		if s_SeatsLeft then
+			return "SpawnInGunship"
+		end
 	end
 
 	-- CONQUEST

@@ -207,7 +207,7 @@ end
 function Bot:InVehicleFastTimerUpdate(p_IsAttacking)
 	-- Stationary AA needs separate handling.
 	if m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.StationaryAA) then
-		self:_UpdateStationaryAAVehicle(p_IsAttacking)
+		self:_GetTargetForStaticVehicleGunner(p_IsAttacking, Config.MaxDistanceAABots)
 
 		if self._UpdateTimer >= Registry.BOT.BOT_UPDATE_CYCLE then
 			-- Common part.
@@ -220,6 +220,29 @@ function Bot:InVehicleFastTimerUpdate(p_IsAttacking)
 
 			self:_UpdateInputs()
 			self._UpdateTimer = 0.0
+
+			self:_DoExitVehicle()
+		end
+
+		return
+	end
+
+	if m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.Gunship) then
+		self:_GetTargetForStaticVehicleGunner(p_IsAttacking, Config.MaxShootDistanceGunship)
+
+		if self._UpdateTimer >= Registry.BOT.BOT_UPDATE_CYCLE then
+			-- Common part.
+			m_VehicleWeaponHandling:UpdateWeaponSelectionVehicle(self)
+
+			-- Differ attacking.
+			if p_IsAttacking then
+				m_VehicleAttacking:UpdateAttackStationaryAAVehicle(self)
+			end
+
+			self:_UpdateInputs()
+			self._UpdateTimer = 0.0
+
+			self:_DoExitVehicle()
 		end
 
 		return

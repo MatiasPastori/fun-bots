@@ -536,11 +536,11 @@ function GameDirector:GetSpawnableVehicle(p_TeamId)
 	return self.m_SpawnableVehicles[p_TeamId]
 end
 
----@param p_TeamId TeamId
----@return ControllableEntity|Entity
-function GameDirector:GetGunship(p_TeamId)
-	return self.m_AvailableGunships[p_TeamId].entity
-end
+-- ---@param p_TeamId TeamId
+-- ---@return ControllableEntity|Entity
+-- function GameDirector:GetGunship(p_TeamId)
+-- 	return self.m_AvailableGunships[p_TeamId].entity
+-- end
 
 function GameDirector:GetStationaryAas(p_TeamId)
 	return self.m_SpawnableStationaryAas[p_TeamId]
@@ -549,6 +549,13 @@ end
 ---@param p_ControllableEntity ControllableEntity
 ---@param p_TeamId TeamId
 function GameDirector:ReturnStationaryAaEntity(p_ControllableEntity, p_TeamId)
+	p_ControllableEntity = ControllableEntity(p_ControllableEntity)
+	for _, l_Entity in pairs(self.m_SpawnableStationaryAas[p_TeamId]) do
+		if (l_Entity.uniqueId == p_ControllableEntity.uniqueId) and (l_Entity.instanceId == p_ControllableEntity.instanceId) then
+			-- already in list, return
+			return
+		end
+	end
 	table.insert(self.m_SpawnableStationaryAas[p_TeamId], p_ControllableEntity)
 end
 
@@ -659,12 +666,20 @@ function GameDirector:OnVehicleSpawnDone(p_Entity)
 			local s_Gunship = {}
 			s_Gunship.Entity = p_Entity
 			s_Gunship.Team = self.m_GunshipObjectiveTeam
+			print(s_Gunship)
+
 			self.m_Gunship = s_Gunship
 		end
-		-- Just trying out something(?)
-		print("Gunship spawned and available for team: " .. p_Entity.teamId)
-		table.insert(self.m_AvailableGunships[p_Entity.teamId], p_Entity)
 	end
+end
+
+function GameDirector:GetGunship(p_TeamId)
+	if self.m_Gunship ~= nil then
+		if p_TeamId == self.m_Gunship.Team then
+			return self.m_Gunship.Entity
+		end
+	end
+	return nil
 end
 
 ---@param p_Entity ControllableEntity|Entity
@@ -718,6 +733,22 @@ function GameDirector:OnVehicleUnspawn(p_Entity, p_VehiclePoints, p_HotTeam)
 					break -- should only happen once
 				end
 			end
+		end
+	end
+end
+
+---VEXT Server Vehicle:Exit Event
+---@param p_VehicleEntity ControllableEntity|Entity
+---@param p_Player Player
+function GameDirector:OnVehicleExit(p_VehicleEntity, p_Player)
+	if p_VehicleEntity == nil then
+		return
+	end
+	p_VehicleEntity = ControllableEntity(p_VehicleEntity)
+	local s_VehicleData = m_Vehicles:GetVehicleByEntity(p_VehicleEntity)
+	if s_VehicleData ~= nil then
+		if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.StationaryAA) then
+			self:ReturnStationaryAaEntity(p_VehicleEntity, p_Player.teamId)
 		end
 	end
 end
@@ -787,8 +818,42 @@ end
 ---@param p_GameMode string
 ---@return string|nil
 function GameDirector:GetGunshipObjectiveName(p_LevelName, p_GameMode)
-	if p_LevelName == "XP5_004" and p_GameMode == "ConquestLarge0" then
-		return "ID_H_US_D"
+	if p_GameMode == "ConquestLarge0" then
+		if p_LevelName == "XP3_Desert" then
+			return "ID_H_US_G"
+		elseif p_LevelName == "XP3_Alborz" then
+			return "ID_H_US_E"
+		elseif p_LevelName == "XP3_Shield" then
+			return "ID_H_US_B"
+		elseif p_LevelName == "XP3_Valley" then
+			return "ID_H_US_D"
+		elseif p_LevelName == "XP5_001" then
+			return "ID_H_US_C"
+		elseif p_LevelName == "XP5_002" then
+			return "ID_H_US_D"
+		elseif p_LevelName == "XP5_003" then
+			return "ID_H_US_D"
+		elseif p_LevelName == "XP5_004" then
+			return "ID_H_US_D"
+		end
+	elseif p_GameMode == "ConquestSmall0" then
+		if p_LevelName == "XP3_Desert" then
+			return "ID_H_US_E"
+		elseif p_LevelName == "XP3_Alborz" then
+			return "ID_H_US_C"
+		elseif p_LevelName == "XP3_Shield" then
+			return "ID_H_US_B"
+		elseif p_LevelName == "XP3_Valley" then
+			return "ID_H_US_C"
+		elseif p_LevelName == "XP5_001" then
+			return "ID_H_US_C"
+		elseif p_LevelName == "XP5_002" then
+			return "ID_H_US_C"
+		elseif p_LevelName == "XP5_003" then
+			return "ID_H_US_C"
+		elseif p_LevelName == "XP5_004" then
+			return "ID_H_US_C"
+		end
 	end
 
 	return nil
@@ -1484,6 +1549,7 @@ function GameDirector:_InitFlagTeams()
 
 	while s_Entity ~= nil do
 		s_Entity = CapturePointEntity(s_Entity)
+		print(s_Entity.name)
 		local s_ObjectiveName = self:_TranslateObjective(s_Entity.transform.trans, s_Entity.name)
 
 		if s_ObjectiveName ~= "" then

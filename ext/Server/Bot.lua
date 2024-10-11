@@ -407,12 +407,24 @@ function Bot:GetAttackDistance(p_ShootBackAfterHit, p_VehicleAttackMode)
 	else
 		if not m_Vehicles:IsAirVehicle(self.m_ActiveVehicle)
 			and m_Vehicles:IsNotVehicleType(self.m_ActiveVehicle, VehicleTypes.MobileArtillery)
-			and not m_Vehicles:IsAAVehicle(self.m_ActiveVehicle)
-		then
+		then -- its a Land Vehicle ( Tank, LAV , Humvee, Tank Destroyer, etc...)
 			if p_ShootBackAfterHit then
-				s_AttackDistance = Config.MaxShootDistanceNoAntiAir * 2
+				s_AttackDistance = Config.MaxShootDistanceLandVehicles * 2
 			else
-				s_AttackDistance = Config.MaxShootDistanceNoAntiAir
+				s_AttackDistance = Config.MaxShootDistanceLandVehicles
+			end
+		elseif m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.Gunship) then
+			if p_ShootBackAfterHit then
+				s_AttackDistance = Config.MaxShootDistanceGunship * 2
+			else
+				s_AttackDistance = Config.MaxShootDistanceGunship
+			end
+		elseif m_Vehicles:IsAAVehicle(self.m_ActiveVehicle) then
+			-- Using the specific value for AAs
+			if p_ShootBackAfterHit then
+				s_AttackDistance = Config.MaxDistanceAABots * 2
+			else
+				s_AttackDistance = Config.MaxDistanceAABots
 			end
 		else
 			if p_ShootBackAfterHit then
@@ -698,7 +710,7 @@ function Bot:_CheckForVehicleActions(p_DeltaTime, p_AttackActive)
 		if self._VehicleSeatTimer >= Registry.VEHICLES.VEHICLE_SEAT_CHECK_CYCLE_TIME then
 			self._VehicleSeatTimer = 0
 
-			if self.m_InVehicle then -- In vehicle.
+			if self.m_InVehicle and self.m_ActiveVehicle.Type ~= VehicleTypes.Gunship then -- In vehicle.
 				for l_SeatIndex = 0, self.m_Player.controlledEntryId do
 					if s_VehicleEntity:GetPlayerInEntry(l_SeatIndex) == nil then
 						-- Better seat available → switch seats.
@@ -1134,11 +1146,14 @@ function Bot:_UpdateRespawn(p_DeltaTime)
 	end
 end
 
+--- Gets a new target based on the specific MaxRange given.
+--- Specifically made for cases such as Stationary Anti Air and the Gunship
 ---@param p_Attacking boolean
-function Bot:_UpdateStationaryAAVehicle(p_Attacking)
+---@param p_MaxRange number
+function Bot:_GetTargetForStaticVehicleGunner(p_Attacking, p_MaxRange)
 	-- Get new target if needed.
 	if self._DeployTimer > 1.0 then
-		local s_Target = m_AirTargets:GetTarget(self.m_Player, Config.MaxDistanceAABots)
+		local s_Target = m_AirTargets:GetTarget(self.m_Player, p_MaxRange)
 
 		if s_Target ~= nil then
 			self._ShootPlayerName = s_Target.name
@@ -1224,14 +1239,12 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 
 	-- Keep one seat free, if enough available.
 	local s_MaxEntries = p_Entity.entryCount
-	if s_VehicleData.Type == VehicleTypes.MobileArtillery then
-		s_MaxEntries = 1
-	end
-
 	if s_VehicleData.Type == VehicleTypes.Gunship then
 		s_MaxEntries = 2
 	end
-
+	if s_VehicleData.Type == VehicleTypes.MobileArtillery then
+		s_MaxEntries = 1
+	end
 	if not p_PlayerIsDriver then
 		-- Leave a place for a player if more than two seats are available.
 		if s_MaxEntries > 2 then
@@ -1249,9 +1262,9 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 	end
 
 	for seatIndex = 0, s_MaxEntries - 1 do
-		if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) and seatIndex == 0 then
-			goto continue
-		end
+		-- if s_VehicleData.Type == VehicleTypes.Gunship then
+		-- 	seatIndex = seatIndex + 1
+		-- end
 		if p_Entity:GetPlayerInEntry(seatIndex) == nil then
 			self.m_Player:EnterVehicle(p_Entity, seatIndex)
 			self._ExitVehicleHealth = PhysicsEntity(p_Entity).internalHealth * (Registry.VEHICLES.VEHICLE_EXIT_HEALTH / 100.0)
@@ -1260,7 +1273,8 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 			self.m_ActiveVehicle = s_VehicleData
 			self._ActiveVehicleWeaponSlot = 0
 			self._VehicleMovableId = m_Vehicles:GetPartIdForSeat(self.m_ActiveVehicle, seatIndex, self._ActiveVehicleWeaponSlot)
-			m_Logger:Write(self.m_ActiveVehicle)
+			-- m_Logger:Write(self.m_ActiveVehicle)
+
 			if seatIndex == 0 then
 				if seatIndex == s_MaxEntries - 1 then
 					self._VehicleWaitTimer = 0.5 -- Always wait a short time to check for free start.

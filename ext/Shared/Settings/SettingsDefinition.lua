@@ -267,6 +267,30 @@ SettingsDefinition = {
 			Category = "DIFFICULTY"
 		},
 		{
+			Name = "GunshipAimWorsening",
+			Text = "Bot Aim Worsening of Support",
+			---@type Type|integer
+			Type = Type.Float,
+			Value = Config.GunshipAimWorsening,
+			Description = "See botAimWorsening, only for LMGs",
+			Reference = Range(0.00, 10.00, 0.05),
+			Default = 1.70,
+			UpdateFlag = UpdateFlag.None,
+			Category = "DIFFICULTY"
+		},
+		{
+			Name = "AntiAirAimWorsening",
+			Text = "Bot Aim Worsening of Support",
+			---@type Type|integer
+			Type = Type.Float,
+			Value = Config.AntiAirAimWorsening,
+			Description = "See botAimWorsening, only for LMGs",
+			Reference = Range(0.00, 10.00, 0.05),
+			Default = 2.00,
+			UpdateFlag = UpdateFlag.None,
+			Category = "DIFFICULTY"
+		},
+		{
 			Name = "DamageFactorVehicles",
 			Text = "Damage Factor Vehicles",
 			---@type Type|integer
@@ -959,21 +983,33 @@ SettingsDefinition = {
 			---@type Type|integer
 			Type = Type.Integer,
 			Value = Config.MaxShootDistanceVehicles,
-			Description = "Meters bots in Vehicles start shooting at players",
+			Description = "Meters bots in Air vehicles / Mobile Artillery / AA start shooting at players",
 			Reference = Range(1.00, 1500.00, 5.0),
 			Default = 250,
 			UpdateFlag = UpdateFlag.None,
 			Category = "VEHICLE"
 		},
 		{
-			Name = "MaxShootDistanceNoAntiAir",
+			Name = "MaxShootDistanceLandVehicles",
 			Text = "Max Shoot-Distance No Anti Air",
 			---@type Type|integer
 			Type = Type.Integer,
-			Value = Config.MaxShootDistanceNoAntiAir,
-			Description = "Meters bots in vehicle (no Anti-Air) starts shooting at players",
+			Value = Config.MaxShootDistanceLandVehicles,
+			Description = "Meters bots in a land vehicle ( Tanks, LAV, Humvees, etc) starts shooting at players",
 			Reference = Range(1.00, 1500.00, 5.0),
 			Default = 150,
+			UpdateFlag = UpdateFlag.None,
+			Category = "VEHICLE"
+		},
+		{
+			Name = "MaxShootDistanceGunship",
+			Text = "Max Shoot-Distance for Gunship",
+			---@type Type|integer
+			Type = Type.Integer,
+			Value = Config.MaxShootDistanceGunship,
+			Description = "Max meters distance for bots in a Gunship to start shooting at players",
+			Reference = Range(1.00, 1500.00, 5.0),
+			Default = 800,
 			UpdateFlag = UpdateFlag.None,
 			Category = "VEHICLE"
 		},
