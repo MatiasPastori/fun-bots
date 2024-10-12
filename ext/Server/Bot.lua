@@ -1240,7 +1240,7 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 	-- Keep one seat free, if enough available.
 	local s_MaxEntries = p_Entity.entryCount
 	if s_VehicleData.Type == VehicleTypes.Gunship then
-		s_MaxEntries = 2
+		s_MaxEntries = 2 -- The gunship has an entryCount = 3 because of an unused driver seat.
 	end
 	if s_VehicleData.Type == VehicleTypes.MobileArtillery then
 		s_MaxEntries = 1
@@ -1262,9 +1262,9 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 	end
 
 	for seatIndex = 0, s_MaxEntries - 1 do
-		-- if s_VehicleData.Type == VehicleTypes.Gunship then
-		-- 	seatIndex = seatIndex + 1
-		-- end
+		if s_VehicleData.Type == VehicleTypes.Gunship then
+			seatIndex = seatIndex + 1 -- We ignore the first seatIndex (Driver not used for the Gunship)
+		end
 		if p_Entity:GetPlayerInEntry(seatIndex) == nil then
 			self.m_Player:EnterVehicle(p_Entity, seatIndex)
 			self._ExitVehicleHealth = PhysicsEntity(p_Entity).internalHealth * (Registry.VEHICLES.VEHICLE_EXIT_HEALTH / 100.0)
@@ -1300,7 +1300,6 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 			self:_SetActiveVars() -- Update if "on vehicle" or "in vehicle".
 			return 0, s_Position -- Everything fine.
 		end
-		::continue::
 	end
 
 	-- No place left.

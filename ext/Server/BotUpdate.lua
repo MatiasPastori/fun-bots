@@ -237,12 +237,20 @@ function Bot:InVehicleFastTimerUpdate(p_IsAttacking)
 			-- Differ attacking.
 			if p_IsAttacking then
 				m_VehicleAttacking:UpdateAttackStationaryAAVehicle(self)
+			else
+				m_VehicleWeaponHandling:UpdateReloadVehicle(self)
+			end
+			self:_UpdateInputs()
+			self:_CheckForVehicleActions(self._UpdateTimer, p_IsAttacking)
+
+
+			if self:_DoExitVehicle() then
+				return
 			end
 
-			self:_UpdateInputs()
 			self._UpdateTimer = 0.0
 
-			self:_DoExitVehicle()
+			-- self:_DoExitVehicle()
 		end
 
 		return
@@ -269,6 +277,7 @@ function Bot:InVehicleFastTimerUpdate(p_IsAttacking)
 	end
 
 	local s_IsStationaryLauncher = m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.StationaryLauncher) or m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.StationaryAA)
+	-- or m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.Gunship)
 
 	-- Sync slow code with fast code. Therefore, execute the slow code first.
 	if self._UpdateTimer >= Registry.BOT.BOT_UPDATE_CYCLE then

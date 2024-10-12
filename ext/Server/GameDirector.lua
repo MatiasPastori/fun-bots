@@ -536,11 +536,11 @@ function GameDirector:GetSpawnableVehicle(p_TeamId)
 	return self.m_SpawnableVehicles[p_TeamId]
 end
 
--- ---@param p_TeamId TeamId
--- ---@return ControllableEntity|Entity
--- function GameDirector:GetGunship(p_TeamId)
--- 	return self.m_AvailableGunships[p_TeamId].entity
--- end
+---@param p_TeamId TeamId|integer
+---@---@return ControllableEntity|Entity
+function GameDirector:GetGunship(p_TeamId)
+	return self.m_AvailableGunships[p_TeamId].entity
+end
 
 function GameDirector:GetStationaryAas(p_TeamId)
 	return self.m_SpawnableStationaryAas[p_TeamId]
@@ -670,17 +670,18 @@ function GameDirector:OnVehicleSpawnDone(p_Entity)
 
 			self.m_Gunship = s_Gunship
 		end
+		table.insert(self.m_SpawnableVehicles[self.m_GunshipObjectiveTeam], p_Entity)
 	end
 end
 
-function GameDirector:GetGunship(p_TeamId)
-	if self.m_Gunship ~= nil then
-		if p_TeamId == self.m_Gunship.Team then
-			return self.m_Gunship.Entity
-		end
-	end
-	return nil
-end
+-- function GameDirector:GetGunship(p_TeamId)
+-- 	if self.m_Gunship ~= nil then
+-- 		if p_TeamId == self.m_Gunship.Team then
+-- 			return self.m_Gunship.Entity
+-- 		end
+-- 	end
+-- 	return nil
+-- end
 
 ---@param p_Entity ControllableEntity|Entity
 ---@param p_VehiclePoints any
@@ -696,8 +697,8 @@ function GameDirector:OnVehicleUnspawn(p_Entity, p_VehiclePoints, p_HotTeam)
 	if m_Vehicles:IsVehicleType(s_VehicleData, VehicleTypes.Gunship) then
 		print('About to check the gunship unspawn')
 		m_Logger:Write("Gunship unspawn")
-		local gunshipIndex = table.IndexOf(self.m_AvailableGunships[p_Entity.teamId], p_Entity)
-		table.remove(self.m_AvailableGunships[p_Entity.teamId], gunshipIndex)
+		local gunshipIndex = table.IndexOf(self.m_AvailableGunships[self.m_GunshipObjectiveTeam], p_Entity)
+		table.remove(self.m_AvailableGunships[self.m_GunshipObjectiveTeam], gunshipIndex)
 		self.m_Gunship = nil
 		print('Gunship no longer available for team: ' .. p_Entity.teamId)
 	end

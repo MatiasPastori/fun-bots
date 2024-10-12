@@ -558,11 +558,11 @@ VehicleData = {
 		Name = "[GUNSHIP]",
 		Type = VehicleTypes.Gunship,
 		Terrain = VehicleTerrains.Air,
-		Parts = { { 1, 3 }, { 0, 2 } },
+		Parts = { -1, { 1, 3 }, { 0, 2 } },
 		-- Parts = { -1, 1, 0 },
-		Speed = { { 600, 900 }, { 250, 900 } },
-		Drop = { { 0.0, 0.0 }, { 0.0, 0.0 } },
-		Offset = { Vec3(-0.707, -0.707, 0), Vec3(-0.707, -0.707, 0) }
+		Speed = { 900, { 600, 900 }, { 250, 900 } },
+		Drop = { 0.0, { 0.0, 0.0 }, { 0.0, 0.0 } },
+		-- Offset = { 0.0, { 0.0, Vec3(-0.707, -0.707, 0) }, { 0, Vec3(-0.707, -0.707, 0) } }
 		-- Drop = { 0.0, 0.0, 0.0 },
 	},
 	-- AA Stationary.

@@ -268,11 +268,11 @@ SettingsDefinition = {
 		},
 		{
 			Name = "GunshipAimWorsening",
-			Text = "Bot Aim Worsening of Support",
+			Text = "Gunship Aim Worsening",
 			---@type Type|integer
 			Type = Type.Float,
 			Value = Config.GunshipAimWorsening,
-			Description = "See botAimWorsening, only for LMGs",
+			Description = "See botAimWorsening, only for Gunship Aim",
 			Reference = Range(0.00, 10.00, 0.05),
 			Default = 1.70,
 			UpdateFlag = UpdateFlag.None,
@@ -280,13 +280,13 @@ SettingsDefinition = {
 		},
 		{
 			Name = "AntiAirAimWorsening",
-			Text = "Bot Aim Worsening of Support",
+			Text = "Anti Air AimWorsening",
 			---@type Type|integer
 			Type = Type.Float,
 			Value = Config.AntiAirAimWorsening,
-			Description = "See botAimWorsening, only for LMGs",
+			Description = "See botAimWorsening, only for Anti Air",
 			Reference = Range(0.00, 10.00, 0.05),
-			Default = 2.00,
+			Default = 1.50,
 			UpdateFlag = UpdateFlag.None,
 			Category = "DIFFICULTY"
 		},

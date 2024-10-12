@@ -1338,9 +1338,9 @@ function BotSpawner:_GetSpawnPoint(p_TeamId, p_SquadId)
 	end
 
 	local s_Gunship = g_GameDirector:GetGunship(p_TeamId)
-	if s_Gunship ~= nil then -- if enableParadrop
+	if s_Gunship ~= nil then             -- if enableParadrop
 		local s_SeatsLeft = false
-		for i = 0, s_Gunship.entryCount do
+		for i = 0, s_Gunship.entryCount - 1 do -- we must decrease the seat index because of that dummy driver seat
 			if s_Gunship:GetPlayerInEntry(i) == nil then
 				s_SeatsLeft = true
 				break
