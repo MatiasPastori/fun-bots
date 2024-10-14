@@ -546,7 +546,7 @@ VehicleData = {
 
 	["C130"] = {
 		Name = "[GUNSHIP]",
-		Type = VehicleTypes.UnarmedGunship,
+		Type = VehicleTypes.Gunship,
 		Terrain = VehicleTerrains.Air,
 		Parts = { -1, { 1, 3 }, { 0, 2 } },
 		-- Parts = { -1, 1, 0 },
@@ -554,7 +554,7 @@ VehicleData = {
 		Drop = { 0.0, { 0.0, 0.0 }, { 0.0, 0.0 } },
 		-- Drop = { 0.0, 0.0, 0.0 },
 	},
-	["AC130"] = { -- CDCFCD12-43EE-44A9-80CE-43F5325E7984 last check
+	["AC130"] = {
 		Name = "[GUNSHIP]",
 		Type = VehicleTypes.Gunship,
 		Terrain = VehicleTerrains.Air,
@@ -562,8 +562,26 @@ VehicleData = {
 		-- Parts = { -1, 1, 0 },
 		Speed = { 900, { 600, 900 }, { 250, 900 } },
 		Drop = { 0.0, { 0.0, 0.0 }, { 0.0, 0.0 } },
-		-- Offset = { 0.0, { 0.0, Vec3(-0.707, -0.707, 0) }, { 0, Vec3(-0.707, -0.707, 0) } }
-		-- Drop = { 0.0, 0.0, 0.0 },
+		Offset = { Vec3(0.0, 0.0, 0.0), { Vec3(-302.486, -86.040, 115.245), Vec3(-513.341, -106.813, 95.052) }, { Vec3(92.062, 1.833, 6.046), Vec3(-353.341, 201.799, 155.520) } }
+
+		-- Possible first seat 25mm cannon alignemnt:
+		-- x: -302.486
+		-- y: -86.040
+		-- z: 115.245
+
+		-- Possible First seat AA Alignment:
+		-- x: -513.341
+		-- y: -106.813
+		-- z: 95.052
+
+		-- Possible Second Seat cannon alignment ?
+		-- x: 92.062
+		-- y: 1.833
+		-- z: 6.046
+		-- Possible Second seat AA alignment?
+		-- x: -353.341
+		-- y: 201.799
+		-- z: 155.520
 	},
 	-- AA Stationary.
 	["Centurion_C-RAM"] = {

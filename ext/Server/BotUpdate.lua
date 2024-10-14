@@ -226,35 +226,35 @@ function Bot:InVehicleFastTimerUpdate(p_IsAttacking)
 
 		return
 	end
+	-- It doesn't make sense to change anything here because its about to be refactored in another branch.
+	-- if m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.Gunship) then
+	-- 	self:_GetTargetForStaticVehicleGunner(p_IsAttacking, Config.MaxShootDistanceGunship)
 
-	if m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.Gunship) then
-		self:_GetTargetForStaticVehicleGunner(p_IsAttacking, Config.MaxShootDistanceGunship)
+	-- 	if self._UpdateTimer >= Registry.BOT.BOT_UPDATE_CYCLE then
+	-- 		-- Common part.
+	-- 		m_VehicleWeaponHandling:UpdateWeaponSelectionVehicle(self)
 
-		if self._UpdateTimer >= Registry.BOT.BOT_UPDATE_CYCLE then
-			-- Common part.
-			m_VehicleWeaponHandling:UpdateWeaponSelectionVehicle(self)
-
-			-- Differ attacking.
-			if p_IsAttacking then
-				m_VehicleAttacking:UpdateAttackStationaryAAVehicle(self)
-			else
-				m_VehicleWeaponHandling:UpdateReloadVehicle(self)
-			end
-			self:_UpdateInputs()
-			self:_CheckForVehicleActions(self._UpdateTimer, p_IsAttacking)
+	-- 		-- Differ attacking.
+	-- 		if p_IsAttacking then
+	-- 			m_VehicleAttacking:UpdateAttackStationaryAAVehicle(self)
+	-- 		else
+	-- 			m_VehicleWeaponHandling:UpdateReloadVehicle(self)
+	-- 		end
+	-- 		self:_UpdateInputs()
+	-- 		self:_CheckForVehicleActions(self._UpdateTimer, p_IsAttacking)
 
 
-			if self:_DoExitVehicle() then
-				return
-			end
+	-- 		if self:_DoExitVehicle() then
+	-- 			return
+	-- 		end
 
-			self._UpdateTimer = 0.0
+	-- 		self._UpdateTimer = 0.0
 
-			-- self:_DoExitVehicle()
-		end
+	-- 		-- self:_DoExitVehicle()
+	-- 	end
 
-		return
-	end
+	-- 	return
+	-- end
 
 	if m_Vehicles:IsVehicleType(self.m_ActiveVehicle, VehicleTypes.Plane) then
 		-- assign new target after some time

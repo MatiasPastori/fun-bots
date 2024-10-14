@@ -1263,6 +1263,7 @@ function Bot:_EnterVehicleEntity(p_Entity, p_PlayerIsDriver)
 
 	for seatIndex = 0, s_MaxEntries - 1 do
 		if s_VehicleData.Type == VehicleTypes.Gunship then
+			-- s_MaxEntries = s_MaxEntries - 1 -- We should do this in order to always keep one free space for a player.
 			seatIndex = seatIndex + 1 -- We ignore the first seatIndex (Driver not used for the Gunship)
 		end
 		if p_Entity:GetPlayerInEntry(seatIndex) == nil then
